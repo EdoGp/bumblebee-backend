@@ -1,0 +1,10 @@
+{
+  "useTabs": true,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "arrowParens": "always",
+  "ensure_newline_at_eof_on_save": true,
+  "semicolons": true,
+  "quoteProps": "consistent",
+  "bracketSpacing": true
+}

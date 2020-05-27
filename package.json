@@ -29,6 +29,7 @@
     "@nestjs/platform-express": "^7.0.0",
     "@nestjs/swagger": "^4.5.7",
     "argon2": "^0.26.2",
+    "aws-sdk": "^2.684.0",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.2",
     "helmet": "^3.22.0",
@@ -39,7 +40,8 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.5.4",
-    "swagger-ui-express": "^4.1.4"
+    "swagger-ui-express": "^4.1.4",
+    "uuid": "^8.1.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^7.0.0",

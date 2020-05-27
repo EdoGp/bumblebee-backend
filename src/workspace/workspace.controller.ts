@@ -15,6 +15,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { Workspace } from './interfaces/workspace.interface';
 import { GetUser } from 'src/auth/dto/get-user.decorator.dto';
 import { User } from 'src/users/interfaces/user.interface';
+import { CreateWorkspaceDto } from './dto/create-Workspace.dto';
+import { EditWorkspaceDto } from './dto/edit-Workspace.dto';
 
 @ApiTags('Workspaces')
 @Controller('workspaces')
@@ -24,33 +26,45 @@ export class WorkspaceController {
 
 	@Get()
 	@UseGuards(AuthGuard('jwt'))
-	async getWorkspaces(): Promise<Workspace[]> {
-		return await this.workspaceService.getWorkspaces();
+	async getWorkspaces(@GetUser() user: User): Promise<Workspace[]> {
+		return await this.workspaceService.getWorkspaces(user);
+	}
+
+	@Get('/:id')
+	@UseGuards(AuthGuard('jwt'))
+	async getWorkspace(
+		@GetUser() user: User,
+		@Param('id') id: string,
+	): Promise<Workspace> {
+		return await this.workspaceService.findOne(id, user);
 	}
 
 	@Post()
 	@UseGuards(AuthGuard('jwt'))
 	async postWorkspace(
-		@Body() createWorkspaceDto: any,
+		@Body() createWorkspaceDto: CreateWorkspaceDto,
 		@GetUser() user: User,
 	): Promise<Workspace> {
 		this.logger.verbose(`Workspace created ${createWorkspaceDto.name}`);
 		return this.workspaceService.newWorkspace(createWorkspaceDto, user);
 	}
 
-	@Put()
+	@Put('/:id')
 	@UseGuards(AuthGuard('jwt'))
 	async updateWorkspace(
 		@Param('id') id: string,
-		@Body() workspaceUpdateDto: any,
-		// WorkspaceUpdateDto
+		@GetUser() user: User,
+		@Body() workspaceUpdateDto: EditWorkspaceDto,
 	): Promise<Workspace> {
 		return await this.workspaceService.updateWorkspace(id, workspaceUpdateDto);
 	}
 
-	@Delete()
+	@Delete('/:id')
 	@UseGuards(AuthGuard('jwt'))
-	async deleteWorkspace(@Param('id') id: string): Promise<void> {
-		return await this.workspaceService.deleteWorkspace(id);
+	async deleteWorkspace(
+		@Param('id') id: string,
+		@GetUser() user: User,
+	): Promise<void> {
+		return await this.workspaceService.deleteWorkspace(id, user);
 	}
 }

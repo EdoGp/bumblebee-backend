@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Workspace } from './interfaces/workspace.interface';
 import { User } from 'src/users/interfaces/user.interface';
+import { CreateWorkspaceDto } from './dto/create-Workspace.dto';
+import { userInfo } from 'os';
 
 @Injectable()
 export class WorkspaceService {
@@ -10,20 +12,23 @@ export class WorkspaceService {
 		@InjectModel('Workspace') private workspaceModel: Model<Workspace>,
 	) {}
 
-	async getWorkspaces(): Promise<Workspace[]> {
-		const workspaces = await this.workspaceModel.find().exec();
+	async getWorkspaces(user: any): Promise<Workspace[]> {
+		const workspaces = await this.workspaceModel
+			.find({ user: user._id })
+			.exec();
 		return workspaces;
 	}
 
-	async findOne(workspaceId: string): Promise<Workspace> {
-		const workspace = await this.workspaceModel.findById(workspaceId).exec();
+	async findOne(workspaceId: string, user: user): Promise<Workspace> {
+		const workspace = await this.workspaceModel
+			.findOne({ _id: workspaceId, user: user._id })
+			.exec();
 		return workspace;
 	}
 
 	async newWorkspace(
-		workspaceData: any,
+		workspaceData: CreateWorkspaceDto,
 		user: User,
-		// WorkspaceCreateDto
 	): Promise<Workspace> {
 		const workspace = new this.workspaceModel({
 			...workspaceData,
@@ -44,8 +49,9 @@ export class WorkspaceService {
 		return workspace;
 	}
 
-	async deleteWorkspace(workspaceId: string): Promise<void> {
-		const result = await this.workspaceModel.deleteOne(workspaceId);
-		console.log(result);
+	async deleteWorkspace(workspaceId: string, user: User): Promise<void> {
+		const result = await this.workspaceModel
+			.deleteOne({ _id: workspaceId, user: user._id })
+			.exec();
 	}
 }

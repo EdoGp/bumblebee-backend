@@ -13,6 +13,9 @@ export const DataSourceSchema = new mongoose.Schema(
 			required: true,
 			minlength: 4,
 		},
+		url: {
+			type: String,
+		},
 	},
 	{ timestamps: true },
 );

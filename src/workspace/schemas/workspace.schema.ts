@@ -8,7 +8,21 @@ export const WorkspaceSchema = new Schema(
 			trim: true,
 			minlength: 4,
 		},
-		profiling: { type: String, trim: true },
+		connection: {
+			id: { type: String },
+			createDate: { type: Date },
+		},
+		tabs: [
+			{
+				name: { type: String },
+				profiling: { type: String },
+				dataSources: {
+					type: Schema.Types.ObjectId,
+					ref: 'DataSource',
+					default: null,
+				},
+			},
+		],
 		dataSources: [
 			{
 				type: Schema.Types.ObjectId,

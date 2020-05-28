@@ -10,7 +10,7 @@ async function bootstrap() {
 		.setDescription('The Bumblebee API description endpoints')
 		.setVersion('0.1.0')
 		.build();
-	app.use(helmet());
+	// app.use(helmet());
 
 	const document = SwaggerModule.createDocument(app, options);
 	SwaggerModule.setup('api', app, document);

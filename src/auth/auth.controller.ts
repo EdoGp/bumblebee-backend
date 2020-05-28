@@ -27,17 +27,13 @@ export class AuthController {
 	}
 
 	@Post('/signup')
-	signUp(
-		@Body(ValidationPipe) userCredentials: UserCredentialsDto,
-	): Promise<User> {
+	signUp(@Body() userCredentials: UserCredentialsDto): Promise<User> {
 		return this.authService.signUp(userCredentials);
 	}
 
 	@Post('/signin')
 	@HttpCode(200)
-	signIn(
-		@Body(ValidationPipe) userCredentials: UserCredentialsDto,
-	): Promise<SignInResponse> {
+	signIn(@Body() userCredentials: UserCredentialsDto): Promise<SignInResponse> {
 		return this.authService.signIn(userCredentials);
 	}
 

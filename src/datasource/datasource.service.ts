@@ -28,7 +28,7 @@ export class DatasourceService {
 		}`;
 		const url = await s3.getSignedUrlPromise('putObject', {
 			Bucket: process.env.DO_BUCKET,
-			ContentType: 'image/png',
+			ContentType: media.type,
 			ACL: 'public-read',
 			Key,
 			Expires: 60 * 2,

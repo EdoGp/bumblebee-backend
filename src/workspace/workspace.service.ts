@@ -39,8 +39,10 @@ export class WorkspaceService {
 		workspaceUpdateDto: any,
 		// WorkspaceUpdateDto
 	): Promise<Workspace> {
+		console.log(workspaceId, workspaceUpdateDto);
+
 		const workspace = await this.workspaceModel.findOneAndUpdate(
-			workspaceId,
+			{ _id: workspaceId },
 			workspaceUpdateDto,
 		);
 

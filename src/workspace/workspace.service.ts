@@ -43,6 +43,7 @@ export class WorkspaceService {
 			workspaceId,
 			workspaceUpdateDto,
 		);
+
 		return workspace;
 	}
 

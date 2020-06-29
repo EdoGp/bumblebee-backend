@@ -8,10 +8,16 @@ export const WorkspaceSchema = new Schema(
 			trim: true,
 			minlength: 4,
 		},
+		activeKernel: { type: Boolean, default: false },
 		connection: {
 			id: { type: String },
 			createDate: { type: Date },
 		},
+		commands: [
+			{
+				type: String,
+			},
+		],
 		tabs: [
 			{
 				name: { type: String },

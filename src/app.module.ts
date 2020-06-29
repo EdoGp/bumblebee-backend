@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { DatasourceModule } from './datasource/datasource.module';
 import { WorkspaceModule } from './workspace/workspace.module';
+import { AppGateway } from './app.gateway';
 
 @Module({
 	imports: [
@@ -23,6 +24,6 @@ import { WorkspaceModule } from './workspace/workspace.module';
 		DatasourceModule,
 	],
 	controllers: [AppController],
-	providers: [AppService],
+	providers: [AppService, AppGateway],
 })
 export class AppModule {}

@@ -18,6 +18,7 @@ export const WorkspaceSchema = new Schema(
 				type: String,
 			},
 		],
+		selectedTab: { type: Number, default: 0 },
 		tabs: [
 			{
 				name: { type: String },

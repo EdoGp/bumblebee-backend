@@ -13,6 +13,9 @@ export const WorkspaceSchema = new Schema(
 			id: { type: String },
 			createDate: { type: Date },
 		},
+		title: { type: String },
+		description: { type: String },
+		dataSourcesCount: { type: Number, default: 0 },
 		commands: [
 			{
 				type: String,

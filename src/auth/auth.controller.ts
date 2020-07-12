@@ -13,7 +13,11 @@ import { User } from 'src/users/interfaces/user.interface';
 import { SignInResponse } from './interfaces/signInResponse.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from './dto/get-user.decorator.dto';
-import { ApiTags } from '@nestjs/swagger';
+import {
+	ApiTags,
+	ApiOkResponse,
+	ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -27,11 +31,15 @@ export class AuthController {
 	}
 
 	@Post('/signup')
+	@ApiOkResponse({ description: 'User SignUp' })
+	@ApiUnauthorizedResponse({ description: 'Invalid data' })
 	signUp(@Body() userCredentials: UserCredentialsDto): Promise<User> {
 		return this.authService.signUp(userCredentials);
 	}
 
 	@Post('/signin')
+	@ApiOkResponse({ description: 'User Signin' })
+	@ApiUnauthorizedResponse({ description: 'Invalid credentials' })
 	@HttpCode(200)
 	signIn(@Body() userCredentials: UserCredentialsDto): Promise<SignInResponse> {
 		return this.authService.signIn(userCredentials);

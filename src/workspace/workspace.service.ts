@@ -12,7 +12,12 @@ export class WorkspaceService {
 	) {}
 
 	async getWorkspaces(user: any): Promise<Workspace[]> {
-		const workspaces = await this.workspaceModel.find({ user: user.id }).exec();
+		const workspaces = await this.workspaceModel
+			.find({ user: user.id })
+			.select(
+				'title activeKernel dataSources name createdAt updatedAt description dataSourcesCount selectedTab',
+			)
+			.exec();
 		return workspaces;
 	}
 

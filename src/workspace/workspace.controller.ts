@@ -8,11 +8,13 @@ import {
 	Logger,
 	Put,
 	Delete,
+	Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { WorkspaceService } from './workspace.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Workspace } from './interfaces/workspace.interface';
+import { QueryParams } from './interfaces/queryParams.interface';
 import { GetUser } from 'src/auth/dto/get-user.decorator.dto';
 import { User } from 'src/users/interfaces/user.interface';
 import { CreateWorkspaceDto } from './dto/create-Workspace.dto';
@@ -26,8 +28,12 @@ export class WorkspaceController {
 
 	@Get()
 	@UseGuards(AuthGuard('jwt'))
-	async getWorkspaces(@GetUser() user: User): Promise<Workspace[]> {
-		return await this.workspaceService.getWorkspaces(user);
+	async getWorkspaces(
+		@GetUser() user: User,
+		@Query() queryParams: QueryParams,
+	): Promise<Workspace[]> {
+		console.log(queryParams);
+		return await this.workspaceService.getWorkspaces(user, queryParams);
 	}
 
 	@Get('/:id')

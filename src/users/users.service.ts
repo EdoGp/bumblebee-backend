@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -24,12 +24,49 @@ export class UsersService {
 		return user.save();
 	}
 
-	async getUsers(): Promise<User[]> {
-		const users = this.userModel.find().exec();
+	async getUsers(queryParams): Promise<User[]> {
+		const query = {};
+		queryParams?.filters?.split(',').forEach((filter, index) => {
+			query[filter] = queryParams?.values?.split(',')[index];
+		});
+		const users = this.userModel
+			.find({ ...query })
+			.sort(queryParams.sort)
+			.skip(parseInt(queryParams.offset))
+			.limit(parseInt(queryParams.limit))
+			.exec();
 		return users;
 	}
 
-	// async deleteUser(): Promise<void>{
-	// 	// this.userModel.
-	// }
+	async activateUser(usersToActivate): Promise<User[]> {
+		if (
+			usersToActivate?.users?.split(',').filter((user) => {
+				return user;
+			}).length > 0
+		) {
+			const users = this.userModel
+				.updateMany(
+					{
+						$or: usersToActivate?.users
+							?.split(',')
+							.filter((user) => {
+								return user;
+							})
+							.map((user) => {
+								return { _id: user || '' };
+							}),
+					},
+					{ active: true },
+					{ new: true, lean: true },
+				)
+				.exec();
+			return users;
+		} else {
+			throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+		}
+	}
+
+	async deleteUser(id: string): Promise<User> {
+		return this.userModel.findOneAndDelete({ _id: id });
+	}
 }

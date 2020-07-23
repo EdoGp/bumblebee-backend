@@ -14,6 +14,7 @@ export const UserSchemaProvider = {
 					trim: true,
 					minlength: 4,
 				},
+				active: { type: Boolean, default: false },
 				password: { type: String },
 				email: {
 					type: String,
@@ -52,7 +53,7 @@ export const UserSchemaProvider = {
 			{ timestamps: true },
 		);
 
-		UserSchema.pre('save', function(next: Function) {
+		UserSchema.pre('save', function (next: Function) {
 			if ((this.isModified('password'), this.isNew)) {
 				argon2.hash(this.password).then((hash) => {
 					this.password = hash;
@@ -63,7 +64,7 @@ export const UserSchemaProvider = {
 			}
 		});
 
-		UserSchema.methods.comparePassword = async function(
+		UserSchema.methods.comparePassword = async function (
 			candidatePassword: string,
 		): Promise<boolean> {
 			try {

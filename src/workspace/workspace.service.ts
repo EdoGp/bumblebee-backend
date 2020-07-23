@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Workspace } from './interfaces/workspace.interface';
+import { QueryParams } from './interfaces/queryParams.interface';
 import { User } from 'src/users/interfaces/user.interface';
 import { CreateWorkspaceDto } from './dto/create-Workspace.dto';
 
@@ -11,9 +12,16 @@ export class WorkspaceService {
 		@InjectModel('Workspace') private workspaceModel: Model<Workspace>,
 	) {}
 
-	async getWorkspaces(user: any): Promise<Workspace[]> {
+	async getWorkspaces(user, queryParams): Promise<Workspace[]> {
+		const query = {};
+		queryParams?.filters?.split(',').forEach((filter, index) => {
+			query[filter] = queryParams?.values?.split(',')[index] || '';
+		});
 		const workspaces = await this.workspaceModel
-			.find({ user: user.id })
+			.find({ ...query })
+			.sort(queryParams.sort)
+			.skip(parseInt(queryParams.offset))
+			.limit(parseInt(queryParams.limit))
 			.select(
 				'title activeKernel dataSources name createdAt updatedAt description dataSourcesCount selectedTab',
 			)

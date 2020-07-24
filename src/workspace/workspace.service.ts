@@ -20,8 +20,8 @@ export class WorkspaceService {
 		const workspaces = await this.workspaceModel
 			.find({ ...query })
 			.sort(queryParams.sort)
-			.skip(parseInt(queryParams.offset))
-			.limit(parseInt(queryParams.limit))
+			.skip(parseInt(queryParams.page) * parseInt(queryParams.pageSize))
+			.limit(parseInt(queryParams.pageSize))
 			.select(
 				'title activeKernel dataSources name createdAt updatedAt description dataSourcesCount selectedTab',
 			)

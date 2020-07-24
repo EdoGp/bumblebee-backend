@@ -32,8 +32,8 @@ export class UsersService {
 		const users = this.userModel
 			.find({ ...query })
 			.sort(queryParams.sort)
-			.skip(parseInt(queryParams.offset))
-			.limit(parseInt(queryParams.limit))
+			.skip(parseInt(queryParams.page) * parseInt(queryParams.pageSize))
+			.limit(parseInt(queryParams.pageSize))
 			.exec();
 		return users;
 	}

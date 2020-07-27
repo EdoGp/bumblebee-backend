@@ -38,6 +38,11 @@ export class UsersService {
 		return users;
 	}
 
+	async getUsersCount(): Promise<any> {
+		const count = this.userModel.countDocuments().exec();
+		return count;
+	}
+
 	async activateUser(usersToActivate): Promise<User[]> {
 		if (
 			usersToActivate?.users?.split(',').filter((user) => {

@@ -31,9 +31,10 @@ export class WorkspaceController {
 	async getWorkspaces(
 		@GetUser() user: User,
 		@Query() queryParams: QueryParams,
-	): Promise<Workspace[]> {
-		console.log(queryParams);
-		return await this.workspaceService.getWorkspaces(user, queryParams);
+	): Promise<any> {
+		const items = await this.workspaceService.getWorkspaces(user, queryParams);
+		const count = await this.workspaceService.countWorkspaces(user);
+		return { items, count };
 	}
 
 	@Get('/:id')

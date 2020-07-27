@@ -23,8 +23,10 @@ export class UsersController {
 
 	@Get()
 	@UseGuards(AuthGuard('jwt'))
-	async getUsers(@Query() queryParams: QueryParams): Promise<User[]> {
-		return await this.usersService.getUsers(queryParams);
+	async getUsers(@Query() queryParams: QueryParams): Promise<any> {
+		const items = await this.usersService.getUsers(queryParams);
+		const count = await this.usersService.getUsersCount();
+		return { items, count };
 	}
 
 	@Post('/activate')

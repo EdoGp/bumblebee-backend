@@ -29,6 +29,11 @@ export class WorkspaceService {
 		return workspaces;
 	}
 
+	async countWorkspaces(user): Promise<Workspace[]> {
+		const count = await this.workspaceModel.countDocuments().exec();
+		return count;
+	}
+
 	async findOne(workspaceId: string, user: User): Promise<Workspace> {
 		const workspace = await this.workspaceModel
 			.findOne({ _id: workspaceId, user: user.id })

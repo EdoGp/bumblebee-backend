@@ -1,31 +1,43 @@
-import { Schema } from 'mongoose';
+import { Model, Schema } from 'mongoose';
 
-export const WorkspaceSchema = new Schema(
-	{
-		name: {
-			type: String,
-			required: true,
-			trim: true,
-			minlength: 4,
-		},
-		activeKernel: { type: Boolean, default: false },
-		connection: {
-			id: { type: String },
-			createDate: { type: Date },
-		},
-		title: { type: String },
-		description: { type: String },
-		dataSourcesCount: { type: Number, default: 0 },
-		commands: [
+export const WorkspaceSchemaProvider = {
+	name: 'Workspace',
+	useFactory: (): Model<any> => {
+		const WorkspaceSchema = new Schema(
 			{
-				type: String,
-			},
-		],
-		selectedTab: { type: Number, default: 0 },
-		tabs: [
-			{
-				name: { type: String },
-				profiling: { type: String },
+				name: {
+					type: String,
+					required: true,
+					trim: true,
+					minlength: 4,
+				},
+				activeKernel: { type: Boolean, default: false },
+				connection: {
+					id: { type: String },
+					createDate: { type: Date },
+				},
+				title: { type: String },
+				description: { type: String },
+				dataSourcesCount: { type: Number, default: 0 },
+				commands: [
+					{
+						type: String,
+					},
+				],
+				selectedTab: { type: Number, default: 0 },
+				tabs: [
+					{
+						name: { type: String },
+						profiling: { type: String },
+						dataSources: [
+							{
+								type: Schema.Types.ObjectId,
+								ref: 'DataSource',
+								default: null,
+							},
+						],
+					},
+				],
 				dataSources: [
 					{
 						type: Schema.Types.ObjectId,
@@ -34,14 +46,15 @@ export const WorkspaceSchema = new Schema(
 					},
 				],
 			},
-		],
-		dataSources: [
-			{
-				type: Schema.Types.ObjectId,
-				ref: 'DataSource',
-				default: null,
-			},
-		],
+			{ timestamps: true, toJSON: { virtuals: true } },
+		);
+
+		WorkspaceSchema.virtual('tabCount').get(function () {
+			console.log('test', this.tabs);
+			return 4;
+			// this.tabs.length;
+		});
+
+		return WorkspaceSchema;
 	},
-	{ timestamps: true },
-);
+};

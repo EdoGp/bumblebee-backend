@@ -56,6 +56,17 @@ export class WorkspaceController {
 		return this.workspaceService.newWorkspace(createWorkspaceDto, user);
 	}
 
+	@Post('/copy/:id')
+	@UseGuards(AuthGuard('jwt'))
+	async copyWorkspace(
+		@Param('id') id: string,
+		@Body() createWorkspaceDto: CreateWorkspaceDto,
+		@GetUser() user: User,
+	): Promise<any> {
+		this.logger.verbose(`Workspace copy `);
+		return this.workspaceService.copyWorkspace(user, id, createWorkspaceDto);
+	}
+
 	@Put('/:id')
 	@UseGuards(AuthGuard('jwt'))
 	async updateWorkspace(

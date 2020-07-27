@@ -23,7 +23,7 @@ export class WorkspaceService {
 			.skip(parseInt(queryParams.page) * parseInt(queryParams.pageSize))
 			.limit(parseInt(queryParams.pageSize))
 			.select(
-				'title activeKernel dataSources name createdAt updatedAt description dataSourcesCount selectedTab',
+				'title activeKernel dataSources name createdAt updatedAt description dataSourcesCount selectedTab tabCount',
 			)
 			.exec();
 		return workspaces;
@@ -69,5 +69,15 @@ export class WorkspaceService {
 		const result = await this.workspaceModel
 			.deleteOne({ _id: workspaceId, user: user.id })
 			.exec();
+	}
+
+	async copyWorkspace(user, workspaceId: string, data: any): Promise<any> {
+		const workspaceToCopy = await this.workspaceModel.findById(workspaceId);
+		const workspace = new this.workspaceModel({
+			...workspaceToCopy,
+			...data,
+			user: user.userId,
+		});
+		return workspace.save();
 	}
 }

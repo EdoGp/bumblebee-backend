@@ -19,7 +19,11 @@ export class AuthService {
 
 	async signIn(userCredentials: UserCredentialsDto): Promise<SignInResponse> {
 		const user = await this.usersService.findOne(userCredentials.username);
-		if (user && (await user.comparePassword(userCredentials.password))) {
+		if (
+			user &&
+			(await user.comparePassword(userCredentials.password)) &&
+			user.active
+		) {
 			const payload: Payload = { username: user.username, sub: user.id };
 			return {
 				accessToken: this.jwtService.sign(payload, {
@@ -43,6 +47,7 @@ export class AuthService {
 				firstName: user.firstName,
 				lastName: user.lastName,
 				fullName: `${user.firstName} ${user.lastName}`,
+				active: user.active,
 			};
 			return returnUser;
 		} else {

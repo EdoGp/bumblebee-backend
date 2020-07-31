@@ -46,6 +46,15 @@ export class WorkspaceController {
 		return await this.workspaceService.findOne(id, user);
 	}
 
+	@Get('/slug/:slug')
+	@UseGuards(AuthGuard('jwt'))
+	async getWorkspaceBySlug(
+		@GetUser() user: User,
+		@Param('slug') slug: string,
+	): Promise<Workspace> {
+		return await this.workspaceService.findOneBySlug(slug, user);
+	}
+
 	@Post()
 	@UseGuards(AuthGuard('jwt'))
 	async postWorkspace(

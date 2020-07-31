@@ -18,19 +18,25 @@ export class WorkspaceService {
 			query[filter] = queryParams?.values?.split(',')[index] || '';
 		});
 		const workspaces = await this.workspaceModel
-			.find({ ...query })
+			.find({ ...query, createdBy: user.userId })
 			.sort(queryParams.sort)
 			.skip(parseInt(queryParams.page) * parseInt(queryParams.pageSize))
 			.limit(parseInt(queryParams.pageSize))
 			.select(
-				'title activeKernel dataSources name createdAt updatedAt description dataSourcesCount selectedTab tabCount',
+				'title activeKernel dataSources name createdAt updatedAt description dataSourcesCount selectedTab tabs tabCount',
 			)
 			.exec();
+
 		return workspaces;
+		// .map((item) => {
+		// 	return { ...item, tabs: undefined };
+		// });
 	}
 
 	async countWorkspaces(user): Promise<Workspace[]> {
-		const count = await this.workspaceModel.countDocuments().exec();
+		const count = await this.workspaceModel
+			.countDocuments({ createdBy: user.userId })
+			.exec();
 		return count;
 	}
 
@@ -41,13 +47,23 @@ export class WorkspaceService {
 		return workspace;
 	}
 
+	async findOneBySlug(slug: string, user: User): Promise<Workspace> {
+		const workspace = await this.workspaceModel
+			.findOne({
+				name: new RegExp(`${slug.split('-').join(' ')}`, 'gi'),
+				user: user.id,
+			})
+			.exec();
+		return workspace;
+	}
+
 	async newWorkspace(
 		workspaceData: CreateWorkspaceDto,
-		user: User,
+		user,
 	): Promise<Workspace> {
 		const workspace = new this.workspaceModel({
 			...workspaceData,
-			user: user.id,
+			createdBy: user.userId,
 		});
 		return workspace.save();
 	}
@@ -75,6 +91,8 @@ export class WorkspaceService {
 		const workspaceToCopy = await this.workspaceModel.findById(workspaceId);
 		const workspace = new this.workspaceModel({
 			...workspaceToCopy,
+			commands: workspaceToCopy.commands,
+			tabs: workspaceToCopy.tabs,
 			...data,
 			user: user.userId,
 		});

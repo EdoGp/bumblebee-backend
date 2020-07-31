@@ -24,23 +24,48 @@ export class UsersService {
 		return user.save();
 	}
 
-	async getUsers(queryParams): Promise<User[]> {
-		const query = {};
-		queryParams?.filters?.split(',').forEach((filter, index) => {
-			query[filter] = queryParams?.values?.split(',')[index];
-		});
-		const users = this.userModel
-			.find({ ...query })
-			.sort(queryParams.sort)
-			.skip(parseInt(queryParams.page) * parseInt(queryParams.pageSize))
-			.limit(parseInt(queryParams.pageSize))
-			.exec();
-		return users;
+	async getUsers(queryParams, user): Promise<User[]> {
+		if (
+			user.userId === '5f1a0af502f37c097f19ca4a' ||
+			user.userId === '5ed5559c1ce6121884455241'
+		) {
+			const query = {};
+			queryParams?.filters?.split(',').forEach((filter, index) => {
+				query[filter] = queryParams?.values?.split(',')[index];
+			});
+			const users = this.userModel
+				.find({ ...query })
+				.sort(queryParams.sort)
+				.skip(parseInt(queryParams.page) * parseInt(queryParams.pageSize))
+				.limit(parseInt(queryParams.pageSize))
+				.exec();
+			return users;
+		} else {
+			const query = {};
+			queryParams?.filters?.split(',').forEach((filter, index) => {
+				query[filter] = queryParams?.values?.split(',')[index];
+			});
+			const users = this.userModel
+				.find({ ...query, _id: user.userId })
+				.sort(queryParams.sort)
+				.skip(parseInt(queryParams.page) * parseInt(queryParams.pageSize))
+				.limit(parseInt(queryParams.pageSize))
+				.exec();
+			return users;
+		}
 	}
 
-	async getUsersCount(): Promise<any> {
-		const count = this.userModel.countDocuments().exec();
-		return count;
+	async getUsersCount(user): Promise<any> {
+		if (
+			user.userId === '5f1a0af502f37c097f19ca4a' ||
+			user.userId === '5ed5559c1ce6121884455241'
+		) {
+			const count = this.userModel.countDocuments({}).exec();
+			return count;
+		} else {
+			const count = this.userModel.countDocuments({ _id: user.userId }).exec();
+			return count;
+		}
 	}
 
 	async activateUser(usersToActivate): Promise<User[]> {

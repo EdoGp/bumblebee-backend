@@ -8,6 +8,7 @@ export interface User extends Document {
 	readonly firstName: string;
 	readonly lastName: string;
 	readonly fullName?: string;
+	readonly active: boolean;
 
 	password?: string;
 	comparePassword?: (passwordCandidate: string) => boolean;

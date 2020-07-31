@@ -12,6 +12,11 @@ export const WorkspaceSchemaProvider = {
 					minlength: 4,
 				},
 				activeKernel: { type: Boolean, default: false },
+				createdBy: {
+					type: Schema.Types.ObjectId,
+					ref: 'User',
+					default: null,
+				},
 				connection: {
 					id: { type: String },
 					createDate: { type: Date },
@@ -46,13 +51,21 @@ export const WorkspaceSchemaProvider = {
 					},
 				],
 			},
-			{ timestamps: true, toJSON: { virtuals: true } },
+			{
+				timestamps: true,
+				toJSON: {
+					virtuals: true,
+				},
+				toObject: {
+					virtuals: true,
+				},
+			},
 		);
 
 		WorkspaceSchema.virtual('tabCount').get(function () {
-			console.log('test', this.tabs);
-			return 4;
-			// this.tabs.length;
+			// console.log('test', this.tabs.length);
+
+			return this.tabs?.length || 0;
 		});
 
 		return WorkspaceSchema;

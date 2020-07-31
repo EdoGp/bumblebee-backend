@@ -23,9 +23,12 @@ export class UsersController {
 
 	@Get()
 	@UseGuards(AuthGuard('jwt'))
-	async getUsers(@Query() queryParams: QueryParams): Promise<any> {
-		const items = await this.usersService.getUsers(queryParams);
-		const count = await this.usersService.getUsersCount();
+	async getUsers(
+		@Query() queryParams: QueryParams,
+		@GetUser() user,
+	): Promise<any> {
+		const items = await this.usersService.getUsers(queryParams, user);
+		const count = await this.usersService.getUsersCount(user);
 		return { items, count };
 	}
 

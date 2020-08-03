@@ -50,7 +50,8 @@ export class WorkspaceService {
 	async findOneBySlug(slug: string, user: User): Promise<Workspace> {
 		const workspace = await this.workspaceModel
 			.findOne({
-				name: new RegExp(`${slug.split('-').join(' ')}`, 'gi'),
+				// name: new RegExp(`${slug.split('-').join(' ')}`, 'gi'),
+				slug: slug,
 				user: user.id,
 			})
 			.exec();

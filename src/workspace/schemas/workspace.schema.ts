@@ -73,6 +73,7 @@ export const WorkspaceSchemaProvider = {
 			this.slug = this.slug.replace(' ', '-');
 			next();
 		});
+
 		WorkspaceSchema.virtual('tabCount').get(function () {
 			return this.tabs?.length || 0;
 		});

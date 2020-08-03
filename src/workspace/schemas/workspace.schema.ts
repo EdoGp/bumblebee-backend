@@ -11,6 +11,13 @@ export const WorkspaceSchemaProvider = {
 					trim: true,
 					minlength: 4,
 				},
+				slug: {
+					type: String,
+					required: true,
+					trim: true,
+					unique: true,
+					minlength: 4,
+				},
 				activeKernel: { type: Boolean, default: false },
 				createdBy: {
 					type: Schema.Types.ObjectId,
@@ -62,9 +69,11 @@ export const WorkspaceSchemaProvider = {
 			},
 		);
 
+		WorkspaceSchema.pre('save', function (next: Function) {
+			this.slug = this.slug.replace(' ', '-');
+			next();
+		});
 		WorkspaceSchema.virtual('tabCount').get(function () {
-			// console.log('test', this.tabs.length);
-
 			return this.tabs?.length || 0;
 		});
 

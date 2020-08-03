@@ -47,6 +47,24 @@ export class UsersController {
 		}
 	}
 
+	@Post('/deactivate')
+	@UseGuards(AuthGuard('jwt'))
+	async deactivateUsers(
+		@Body() usersToDeactivate,
+		@GetUser() user,
+	): Promise<any> {
+		if (
+			user.userId === '5ec98793d1be7d1fc3aaf9d5' ||
+			user.userId === '5ed5559c1ce6121884455241'
+		) {
+			const users = await this.usersService.deactivateUser(usersToDeactivate);
+
+			return { message: 'Users deactivated' };
+		} else {
+			throw new UnauthorizedException();
+		}
+	}
+
 	@Delete('/:id')
 	@UseGuards(AuthGuard('jwt'))
 	async deleteUser(@Param('id') id: string): Promise<User> {

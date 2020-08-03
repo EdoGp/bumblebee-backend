@@ -96,6 +96,34 @@ export class UsersService {
 		}
 	}
 
+	async deactivateUser(usersToActivate): Promise<User[]> {
+		if (
+			usersToActivate?.users?.split(',').filter((user) => {
+				return user;
+			}).length > 0
+		) {
+			const users = this.userModel
+				.updateMany(
+					{
+						$or: usersToActivate?.users
+							?.split(',')
+							.filter((user) => {
+								return user;
+							})
+							.map((user) => {
+								return { _id: user || '' };
+							}),
+					},
+					{ active: false },
+					{ new: true, lean: true },
+				)
+				.exec();
+			return users;
+		} else {
+			throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+		}
+	}
+
 	async deleteUser(id: string): Promise<User> {
 		return this.userModel.findOneAndDelete({ _id: id });
 	}

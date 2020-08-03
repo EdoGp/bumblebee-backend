@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+	Injectable,
+	UnauthorizedException,
+	ForbiddenException,
+} from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { UserCredentialsDto } from 'src/users/dto/user-credentials.dto';
@@ -31,6 +35,8 @@ export class AuthService {
 				}),
 				refreshToken: this.jwtService.sign(payload, { expiresIn: '30D' }),
 			};
+		} else if (!user.active) {
+			throw new ForbiddenException();
 		} else {
 			throw new UnauthorizedException();
 		}

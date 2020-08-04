@@ -34,7 +34,20 @@ export class WorkspaceController {
 	): Promise<any> {
 		const items = await this.workspaceService.getWorkspaces(user, queryParams);
 		const count = await this.workspaceService.countWorkspaces(user);
-		return { items, count };
+		console.log(
+			'test',
+			items.map((item) => {
+				console.log(item);
+				return item;
+			}),
+		);
+		return {
+			items: items.map((item) => {
+				item.tabs = null;
+				return item;
+			}),
+			count,
+		};
 	}
 
 	@Get('/:id')

@@ -1,4 +1,5 @@
-import { Model, Schema } from 'mongoose';
+import mongoose, { Model, Schema } from 'mongoose';
+import * as slug from 'mongoose-slug-generator';
 
 export const WorkspaceSchemaProvider = {
 	name: 'Workspace',
@@ -13,10 +14,8 @@ export const WorkspaceSchemaProvider = {
 				},
 				slug: {
 					type: String,
-					required: true,
-					trim: true,
+					slug: 'name',
 					unique: true,
-					minlength: 4,
 				},
 				activeKernel: { type: Boolean, default: false },
 				createdBy: {
@@ -68,6 +67,8 @@ export const WorkspaceSchemaProvider = {
 				},
 			},
 		);
+
+		WorkspaceSchema.plugin(slug);
 
 		WorkspaceSchema.pre('save', function (next: Function) {
 			this.slug = this.slug.replace(' ', '-');

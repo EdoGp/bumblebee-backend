@@ -25,8 +25,8 @@ export class AuthService {
 		const user = await this.usersService.findOne(userCredentials.username);
 		if (
 			user &&
-			(await user.comparePassword(userCredentials.password)) &&
-			user.active
+			user.active &&
+			(await user.comparePassword(userCredentials.password))
 		) {
 			const payload: Payload = { username: user.username, sub: user.id };
 			return {
@@ -35,7 +35,11 @@ export class AuthService {
 				}),
 				refreshToken: this.jwtService.sign(payload, { expiresIn: '30D' }),
 			};
-		} else if (!user.active) {
+		} else if (
+			user &&
+			(await user.comparePassword(userCredentials.password)) &&
+			!user.active
+		) {
 			throw new ForbiddenException();
 		} else {
 			throw new UnauthorizedException();

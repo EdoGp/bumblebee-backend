@@ -18,7 +18,10 @@ export class WorkspaceService {
 			query[filter] = queryParams?.values?.split(',')[index] || '';
 		});
 		const workspaces = await this.workspaceModel
-			.find({ ...query, createdBy: user.userId })
+			.find({
+				...query,
+				createdBy: user.userId,
+			})
 			.sort(queryParams.sort)
 			.skip(parseInt(queryParams.page) * parseInt(queryParams.pageSize))
 			.limit(parseInt(queryParams.pageSize))
@@ -28,14 +31,13 @@ export class WorkspaceService {
 			.exec();
 
 		return workspaces;
-		// .map((item) => {
-		// 	return { ...item, tabs: undefined };
-		// });
 	}
 
 	async countWorkspaces(user): Promise<Workspace[]> {
 		const count = await this.workspaceModel
-			.countDocuments({ createdBy: user.userId })
+			.countDocuments({
+				createdBy: user.userId,
+			})
 			.exec();
 		return count;
 	}

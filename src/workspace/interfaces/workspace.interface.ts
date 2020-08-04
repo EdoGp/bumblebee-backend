@@ -5,4 +5,5 @@ export interface Workspace extends Document {
 	readonly name: string;
 	readonly profiling: string;
 	readonly dataSources: Array<any>;
+	tabs: Array<any>;
 }

@@ -7,9 +7,11 @@ import { UsersModule } from './users/users.module';
 import { DatasourceModule } from './datasource/datasource.module';
 import { WorkspaceModule } from './workspace/workspace.module';
 import { AppGateway } from './app.gateway';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
 	imports: [
+		ConfigModule.forRoot(),
 		MongooseModule.forRoot(
 			'mongodb+srv://bumblebee:6oF5B3omteLRPOQl@cluster0-9mqzj.mongodb.net/bumblebee?retryWrites=true&w=majority',
 			{

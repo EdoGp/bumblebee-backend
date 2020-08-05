@@ -27,7 +27,8 @@ export class UsersService {
 	async getUsers(queryParams, user): Promise<User[]> {
 		if (
 			user.userId === '5f1a0af502f37c097f19ca4a' ||
-			user.userId === '5ed5559c1ce6121884455241'
+			user.userId === '5ed5559c1ce6121884455241' ||
+			user.userId === '5f2b227fcc7fec606debb7bd'
 		) {
 			const query = {};
 			queryParams?.filters?.split(',').forEach((filter, index) => {
@@ -58,7 +59,8 @@ export class UsersService {
 	async getUsersCount(user): Promise<any> {
 		if (
 			user.userId === '5f1a0af502f37c097f19ca4a' ||
-			user.userId === '5ed5559c1ce6121884455241'
+			user.userId === '5ed5559c1ce6121884455241' ||
+			user.userId === '5f2b227fcc7fec606debb7bd'
 		) {
 			const count = this.userModel.countDocuments({}).exec();
 			return count;

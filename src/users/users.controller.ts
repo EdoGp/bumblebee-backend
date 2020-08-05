@@ -37,7 +37,8 @@ export class UsersController {
 	async activateUsers(@Body() usersToActivate, @GetUser() user): Promise<any> {
 		if (
 			user.userId === '5ec98793d1be7d1fc3aaf9d5' ||
-			user.userId === '5ed5559c1ce6121884455241'
+			user.userId === '5ed5559c1ce6121884455241' ||
+			user.userId === '5f2b227fcc7fec606debb7bd'
 		) {
 			const users = await this.usersService.activateUser(usersToActivate);
 
@@ -55,7 +56,8 @@ export class UsersController {
 	): Promise<any> {
 		if (
 			user.userId === '5ec98793d1be7d1fc3aaf9d5' ||
-			user.userId === '5ed5559c1ce6121884455241'
+			user.userId === '5ed5559c1ce6121884455241' ||
+			user.userId === '5f2b227fcc7fec606debb7bd'
 		) {
 			const users = await this.usersService.deactivateUser(usersToDeactivate);
 

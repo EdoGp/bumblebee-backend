@@ -10,7 +10,15 @@ import {
 import { Logger } from '@nestjs/common';
 import { Socket, Server, Client } from 'socket.io';
 
-@WebSocketGateway()
+import {
+	runCode,
+	initializeKernel,
+	deleteEveryKernel,
+	requestToKernel,
+} from './kernel.js';
+import kernelRoutines from './kernel-routines.js';
+
+@WebSocketGateway(5000)
 export class AppGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer() wss: Server;
@@ -24,18 +32,78 @@ export class AppGateway
 	}
 
 	handleDisconnect(client: Socket) {
-		// throw new Error('Method not implemented.');
 		this.logger.log(`Client disconnected: ${client.id}`);
 	}
 	handleConnection(client: Socket, ...args: any[]) {
-		// throw new Error('Method not implemented.');
 		this.logger.log(`Client connected: ${client.id}`);
 	}
 
-	@SubscribeMessage('messageToServer')
-	handleMessage(client: Socket, text: string): WsResponse<string> {
-		// this.wss.emit('msgToClient', text);
-		// client.emit('msgToClient', text);
+	@SubscribeMessage('message')
+	async handleMessage(client: Socket, payload): Promise<any> {
+		if (payload.message === 'datasets') {
+			// const sessionId = payload.username + '_' + payload.workspace;
+			// let result = {};
+			// try {
+			// 	result = await requestToKernel('datasets', sessionId);
+			// } catch (err) {
+			// 	result = {
+			// 		status: 'error',
+			// 		error: 'Datasets info error',
+			// 		error2: err.toString(),
+			// 	};
+			// }
+			// const code = kernelRoutines.datasetsMin(payload);
+			// this.wss.emit('reply', {
+			// 	data: result,
+			// 	code,
+			// 	timestamp: payload.timestamp,
+			// });
+		} else if (payload.message === 'initialize') {
+			// const sessionId = payload.username + '_' + payload.workspace;
+			// let result;
+			// try {
+			// 	const initPayload = await initializeKernel(sessionId, payload);
+			// 	// var kernel = payload.kernel;
+			// 	result = initPayload.result;
+			// } catch (err) {
+			// 	result = err;
+			// 	console.error('[INITIALIZATION ERROR]', err);
+			// 	result.status = 'error';
+			// }
+			// const code = kernelRoutines.initMin(payload);
+			// this.wss.emit('reply', {
+			// 	data: result,
+			// 	code,
+			// 	timestamp: payload.timestamp,
+			// });
+		} else if (payload.message === 'run') {
+			// const sessionId = payload.username + '_' + payload.workspace;
+			// const result = await runCode(`${payload.code}`, sessionId);
+			// this.wss.emit('reply', {
+			// 	data: result,
+			// 	code: payload.code,
+			// 	timestamp: payload.timestamp,
+			// });
+		} else if (payload.message === 'cells') {
+			// const sessionId = payload.username + '_' + payload.workspace;
+			// let code = payload.code;
+			// code += '\n' + `_output = 'ok'`;
+			// const result = await runCode(code, sessionId);
+			// this.wss.emit('reply', {
+			// 	data: result,
+			// 	code,
+			// 	timestamp: payload.timestamp,
+			// });
+		} else if (payload.message === 'profile') {
+			// const sessionId = payload.username + '_' + payload.workspace;
+			// const code = `_output = ${payload.dfName}.ext.profile(columns="*", output="json")`;
+			// const result = await runCode(code, sessionId);
+			// this.wss.emit('reply', {
+			// 	data: result,
+			// 	code,
+			// 	timestamp: payload.timestamp,
+			// });
+		}
 		return { event: 'msgToClient', data: 'Hello world!' };
 	}
 }

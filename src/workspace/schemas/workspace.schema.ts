@@ -67,9 +67,7 @@ export const WorkspaceSchemaProvider = {
 				},
 			},
 		);
-
-		WorkspaceSchema.plugin(slug);
-
+		WorkspaceSchema.plugin(slug, { separator: '-', lang: 'en' });
 		WorkspaceSchema.pre('save', function (next: Function) {
 			this.slug = this.slug.replace(' ', '-');
 			next();

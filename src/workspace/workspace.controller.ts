@@ -34,16 +34,9 @@ export class WorkspaceController {
 	): Promise<any> {
 		const items = await this.workspaceService.getWorkspaces(user, queryParams);
 		const count = await this.workspaceService.countWorkspaces(user);
-		console.log(
-			'test',
-			items.map((item) => {
-				console.log(item);
-				return item;
-			}),
-		);
 		return {
 			items: items.map((item) => {
-				item.tabs = null;
+				item.tabs = undefined;
 				return item;
 			}),
 			count,
@@ -71,9 +64,10 @@ export class WorkspaceController {
 	@Post()
 	@UseGuards(AuthGuard('jwt'))
 	async postWorkspace(
-		@Body() createWorkspaceDto: CreateWorkspaceDto,
+		@Body() createWorkspaceDto,
 		@GetUser() user: User,
 	): Promise<Workspace> {
+		console.log(createWorkspaceDto);
 		this.logger.verbose(`Workspace created ${createWorkspaceDto.name}`);
 		return this.workspaceService.newWorkspace(createWorkspaceDto, user);
 	}

@@ -1,7 +1,6 @@
 import { client as WebSocketClient } from 'websocket';
 import axios from 'axios';
 import { v1 as uuidv1 } from 'uuid';
-
 import kernelRoutines from './kernel-routines.js';
 
 const kernels = [];

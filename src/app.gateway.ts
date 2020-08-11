@@ -8,7 +8,7 @@ import {
 	OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
-import { Socket, Server, Client } from 'socket.io';
+import { Socket, Server } from 'socket.io';
 
 import {
 	runCode,
@@ -23,8 +23,6 @@ export class AppGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer() wss: Server;
 	private logger: Logger = new Logger('AppGateway');
-
-	private url = `adsad`;
 
 	afterInit(server: Server) {
 		this.logger.log('Initialized socket server');

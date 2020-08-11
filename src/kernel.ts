@@ -6,6 +6,7 @@ import kernelRoutines from './kernel-routines.js';
 const kernels = [];
 
 let kernel_addresses;
+let kernel_types;
 let kernel_bases;
 let ws_kernel_bases;
 
@@ -14,19 +15,25 @@ const updateKernelBases = function () {
 		kernel_addresses = (process.env.KERNEL_ADDRESS || `localhost:8888`).split(
 			',',
 		);
+		kernel_types = (process.env.KERNEL_TYPE || `python3`).split(',');
 		kernel_bases = kernel_addresses.map((e) => 'http://' + e);
 		ws_kernel_bases = kernel_addresses.map((e) => 'ws://' + e);
 	}
 };
 
+const kernelType = function (id) {
+	updateKernelBases();
+	return kernel_types[id] || kernel_types[0];
+};
+
 const kernelBase = function (id) {
 	updateKernelBases();
-	return kernel_bases[id];
+	return kernel_bases[id] || kernel_bases[0];
 };
 
 const wsKernelBase = function (id) {
 	updateKernelBases();
-	return ws_kernel_bases[id];
+	return ws_kernel_bases[id] || ws_kernel_bases[0];
 };
 
 export const trimCharacters = (s, c) => {
@@ -96,7 +103,11 @@ export const initializeKernelSession = async function (sessionId, payload) {
 		}
 	}
 
-	if (!kernels[sessionId] || !kernels[sessionId].connection) {
+	if (
+		!kernels[sessionId] ||
+		!kernels[sessionId].id ||
+		!kernels[sessionId].connection
+	) {
 		return false;
 	}
 
@@ -122,7 +133,7 @@ const assertSession = async function (
 
 		await createConnection(sessionId);
 
-		if (!isInit && !kernels[sessionId].initialized) {
+		if (!isInit && !(kernels[sessionId].initialized || kernels[sessionId].id)) {
 			if (!kernels[sessionId].initialization) {
 				kernels[sessionId].initialization = initializeKernelSession(sessionId, {
 					payloadDefault: true,
@@ -349,7 +360,7 @@ const createKernel = async function (sessionId, ka = 0) {
 				// });
 				const kernelResponse = await axios.post(
 					`${kernelBase(ka)}/api/kernels`,
-					{},
+					{ name: kernelType(ka) },
 				);
 
 				const uuid = Buffer.from(uuidv1(), 'utf8').toString('hex');
@@ -376,6 +387,7 @@ const createKernel = async function (sessionId, ka = 0) {
 		// console.log('Kernel created', sessionId, ka);
 		return sessionId;
 	} catch (err) {
+		// console.log('Deleting Session',sessionId,'error')
 		// console.error(err)
 		throw 'Error on createKernel';
 	}

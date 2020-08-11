@@ -11,7 +11,7 @@ res.update({'result': _output})
 _end_time = datetime.utcnow().timestamp()
 res.update({'_gatewayTime': {'start': _start_time, 'end': _end_time, 'duration': _end_time-_start_time}})
 json.dumps(res,  default=_json_default, ensure_ascii=False)
-`
+`;
 const code = (code = '') => `
 _start_time = datetime.utcnow().timestamp()
 ${code}
@@ -19,28 +19,32 @@ res = {'result': _output}
 _end_time = datetime.utcnow().timestamp()
 res.update({'_gatewayTime': {'start': _start_time, 'end': _end_time, 'duration': _end_time-_start_time}})
 json.dumps(res,  default=_json_default, ensure_ascii=False)
-`
+`;
 
-const datasetsMin = (payload = {}) => `
+const datasetsMin = (payload) => `
 { _df: globals()[_df].cols.names() for (_df) in ipython_vars(globals(),"dask") }
-`
+`;
 
-const datasets = (payload = {}) => `
+const datasets = (payload) => `
 _start_time = datetime.utcnow().timestamp()
 _dfs = ipython_vars(globals(),"dask")
 _end_time = datetime.utcnow().timestamp()
 res = { _df: globals()[_df].cols.names() for (_df) in _dfs }
 res.update({'_gatewayTime': {'start': _start_time, 'end': _end_time, 'duration': _end_time-_start_time}})
 json.dumps(res,  default=_json_default, ensure_ascii=False)
-`
+`;
 
-const initMin = (payload = {}) => `
-op = Optimus("${payload.engine || 'dask'}",`
-+ (payload.address ? ` address="${payload.address}",` : '')
-+ ` threads_per_worker=${payload.tpw || 8}, n_workers=${payload.workers || 1}, comm=True)
-`
+const initMin = (payload) =>
+	`
+op = Optimus("${payload?.engine || 'dask'}",` +
+	(payload.address ? ` address="${payload.address}",` : '') +
+	` threads_per_worker=${payload.tpw || 8}, n_workers=${
+		payload.workers || 1
+	}, comm=True)
+`;
 
-const init = (payload = {}) => `
+const init = (payload) =>
+	`
 try:
     json; date; datetime; ipython_vars; _json_default; traceback;
 except Exception:
@@ -78,9 +82,9 @@ try:
         pass
 except Exception:
     from optimus import Optimus
-    op = Optimus(engine,`
-    + (payload.address ? ` address="${payload.address}",` : '')
-    + ` threads_per_worker=tpw, n_workers=workers, comm=True)
+    op = Optimus(engine,` +
+	(payload.address ? ` address="${payload.address}",` : '') +
+	` threads_per_worker=tpw, n_workers=workers, comm=True)
     op
     op.__version__
     op.engine
@@ -89,6 +93,6 @@ except Exception:
 _end_time = datetime.utcnow().timestamp()
 res.update({'_gatewayTime': {'start': _start_time, 'end': _end_time, 'duration': _end_time-_start_time}})
 json.dumps(res,  default=_json_default, ensure_ascii=False)
-`
+`;
 
-export default {init, datasets, code, datasetsMin, initMin}
+export default { init, datasets, code, datasetsMin, initMin };

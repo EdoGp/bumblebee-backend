@@ -15,8 +15,8 @@ import {
 	initializeKernel,
 	deleteEveryKernel,
 	requestToKernel,
-} from './kernel.js';
-import kernelRoutines from './kernel-routines.js';
+} from './kernel';
+import kernelRoutines from './kernel-routines';
 
 @WebSocketGateway(5000)
 export class AppGateway
@@ -41,68 +41,68 @@ export class AppGateway
 	@SubscribeMessage('message')
 	async handleMessage(client: Socket, payload): Promise<any> {
 		if (payload.message === 'datasets') {
-			// const sessionId = payload.username + '_' + payload.workspace;
-			// let result = {};
-			// try {
-			// 	result = await requestToKernel('datasets', sessionId);
-			// } catch (err) {
-			// 	result = {
-			// 		status: 'error',
-			// 		error: 'Datasets info error',
-			// 		error2: err.toString(),
-			// 	};
-			// }
-			// const code = kernelRoutines.datasetsMin(payload);
-			// this.wss.emit('reply', {
-			// 	data: result,
-			// 	code,
-			// 	timestamp: payload.timestamp,
-			// });
+			const sessionId = payload.username + '_' + payload.workspace;
+			let result = {};
+			try {
+				result = await requestToKernel('datasets', sessionId, null);
+			} catch (err) {
+				result = {
+					status: 'error',
+					error: 'Datasets info error',
+					error2: err.toString(),
+				};
+			}
+			const code = kernelRoutines.datasetsMin(payload);
+			this.wss.emit('reply', {
+				data: result,
+				code,
+				timestamp: payload.timestamp,
+			});
 		} else if (payload.message === 'initialize') {
-			// const sessionId = payload.username + '_' + payload.workspace;
-			// let result;
-			// try {
-			// 	const initPayload = await initializeKernel(sessionId, payload);
-			// 	// var kernel = payload.kernel;
-			// 	result = initPayload.result;
-			// } catch (err) {
-			// 	result = err;
-			// 	console.error('[INITIALIZATION ERROR]', err);
-			// 	result.status = 'error';
-			// }
-			// const code = kernelRoutines.initMin(payload);
-			// this.wss.emit('reply', {
-			// 	data: result,
-			// 	code,
-			// 	timestamp: payload.timestamp,
-			// });
+			const sessionId = payload.username + '_' + payload.workspace;
+			let result;
+			try {
+				const initPayload = await initializeKernel(sessionId, payload);
+				result = initPayload.result;
+				console.log('test------', initPayload.result);
+			} catch (err) {
+				result = err;
+				console.error('[INITIALIZATION ERROR]', err);
+				result.status = 'error';
+			}
+			const code = kernelRoutines.initMin(payload);
+			this.wss.emit('reply', {
+				data: result,
+				code,
+				timestamp: payload.timestamp,
+			});
 		} else if (payload.message === 'run') {
-			// const sessionId = payload.username + '_' + payload.workspace;
-			// const result = await runCode(`${payload.code}`, sessionId);
-			// this.wss.emit('reply', {
-			// 	data: result,
-			// 	code: payload.code,
-			// 	timestamp: payload.timestamp,
-			// });
+			const sessionId = payload.username + '_' + payload.workspace;
+			const result = await runCode(`${payload.code}`, sessionId);
+			this.wss.emit('reply', {
+				data: result,
+				code: payload.code,
+				timestamp: payload.timestamp,
+			});
 		} else if (payload.message === 'cells') {
-			// const sessionId = payload.username + '_' + payload.workspace;
-			// let code = payload.code;
-			// code += '\n' + `_output = 'ok'`;
-			// const result = await runCode(code, sessionId);
-			// this.wss.emit('reply', {
-			// 	data: result,
-			// 	code,
-			// 	timestamp: payload.timestamp,
-			// });
+			const sessionId = payload.username + '_' + payload.workspace;
+			let code = payload.code;
+			code += '\n' + `_output = 'ok'`;
+			const result = await runCode(code, sessionId);
+			this.wss.emit('reply', {
+				data: result,
+				code,
+				timestamp: payload.timestamp,
+			});
 		} else if (payload.message === 'profile') {
-			// const sessionId = payload.username + '_' + payload.workspace;
-			// const code = `_output = ${payload.dfName}.ext.profile(columns="*", output="json")`;
-			// const result = await runCode(code, sessionId);
-			// this.wss.emit('reply', {
-			// 	data: result,
-			// 	code,
-			// 	timestamp: payload.timestamp,
-			// });
+			const sessionId = payload.username + '_' + payload.workspace;
+			const code = `_output = ${payload.dfName}.ext.profile(columns="*", output="json")`;
+			const result = await runCode(code, sessionId);
+			this.wss.emit('reply', {
+				data: result,
+				code,
+				timestamp: payload.timestamp,
+			});
 		}
 		return { event: 'msgToClient', data: 'Hello world!' };
 	}

@@ -1,15 +1,14 @@
-const WebSocketClient = require('websocket').client;
-import { trimCharacters } from 'bumblebee-utils';
-const request = require('request-promise');
-const uuidv1 = require('uuid/v1');
+import { client as WebSocketClient } from 'websocket';
+import axios from 'axios';
+import { v1 as uuidv1 } from 'uuid';
 
 import kernelRoutines from './kernel-routines.js';
 
-var kernels = [];
+const kernels = [];
 
-var kernel_addresses;
-var kernel_bases;
-var ws_kernel_bases;
+let kernel_addresses;
+let kernel_bases;
+let ws_kernel_bases;
 
 const updateKernelBases = function () {
 	if (!kernel_addresses) {
@@ -31,10 +30,16 @@ const wsKernelBase = function (id) {
 	return ws_kernel_bases[id];
 };
 
-export const initializeKernel = async function (sessionId, payload = false) {
-	var result = false;
+export const trimCharacters = (s, c) => {
+	if (c === ']') c = '\\]';
+	if (c === '\\') c = '\\\\';
+	return s.replace(new RegExp('^[' + c + ']+|[' + c + ']+$', 'g'), '');
+};
 
-	if (payload.reset) {
+export const initializeKernel = async function (sessionId, payload) {
+	let result = false;
+
+	if (payload?.reset) {
 		kernels[sessionId] = await clearKernel(sessionId);
 	} else {
 		kernels[sessionId] = kernels[sessionId] || {};
@@ -50,13 +55,10 @@ export const initializeKernel = async function (sessionId, payload = false) {
 	return { kernel: kernels[sessionId], result };
 };
 
-export const initializeKernelSession = async function (
-	sessionId,
-	payload = false,
-) {
+export const initializeKernelSession = async function (sessionId, payload) {
 	// console.log('initializeKernelSession')
 
-	var result = false;
+	let result;
 
 	if (
 		!payload &&
@@ -68,7 +70,7 @@ export const initializeKernelSession = async function (
 		payload = {};
 	}
 
-	var tries = 10; // 10
+	let tries = 10; // 10
 	while (tries > 0) {
 		try {
 			result = await requestToKernel('init', sessionId, payload);
@@ -78,7 +80,7 @@ export const initializeKernelSession = async function (
 				tries = 0;
 			}
 			if (tries <= 0) {
-				console.error(err);
+				// console.error(err);
 				return {
 					error: 'Internal Error',
 					content: err.toString(),
@@ -88,7 +90,7 @@ export const initializeKernelSession = async function (
 			result = false;
 		}
 		if (!result) {
-			console.log('Kernel error, retrying');
+			// console.log('Kernel error, retrying');
 			await deleteKernel(sessionId);
 		} else {
 			break;
@@ -123,7 +125,9 @@ const assertSession = async function (
 
 		if (!isInit && !kernels[sessionId].initialized) {
 			if (!kernels[sessionId].initialization) {
-				kernels[sessionId].initialization = initializeKernelSession(sessionId);
+				kernels[sessionId].initialization = initializeKernelSession(sessionId, {
+					payloadDefault: true,
+				});
 			}
 			await kernels[sessionId].initialization;
 			kernels[sessionId].initialization = false;
@@ -131,14 +135,14 @@ const assertSession = async function (
 
 		return kernels[sessionId].connection;
 	} catch (err) {
-		console.error('WebSocket Error');
-		console.error(err);
+		// console.error('WebSocket Error');
+		// console.error(err);
 		return undefined;
 	}
 };
 
 export const requestToKernel = async function (type, sessionId, payload) {
-	var connection = await assertSession(
+	const connection = await assertSession(
 		sessionId,
 		type == 'init',
 		payload ? payload.kernel_address : undefined,
@@ -148,9 +152,9 @@ export const requestToKernel = async function (type, sessionId, payload) {
 		throw 'Socket error';
 	}
 
-	var startTime = new Date().getTime();
+	const startTime = new Date().getTime();
 
-	var code = payload;
+	let code = payload;
 
 	switch (type) {
 		case 'code':
@@ -165,9 +169,9 @@ export const requestToKernel = async function (type, sessionId, payload) {
 			break;
 	}
 
-	var msg_id = kernels[sessionId].uuid + Math.random();
+	const msg_id = kernels[sessionId].uuid + Math.random();
 
-	var hdr = {
+	const hdr = {
 		msg_id: msg_id,
 		session: kernels[sessionId].uuid,
 		date: new Date().toISOString(),
@@ -175,7 +179,7 @@ export const requestToKernel = async function (type, sessionId, payload) {
 		version: '5.3', // TO-DO: check
 	};
 
-	var codeMsg = {
+	const codeMsg = {
 		header: hdr,
 		parent_header: hdr,
 		metadata: {},
@@ -186,15 +190,15 @@ export const requestToKernel = async function (type, sessionId, payload) {
 		kernels[sessionId].promises = {};
 	}
 
-	var response = await new Promise((resolve, reject) => {
+	const response = await new Promise((resolve, reject) => {
 		kernels[sessionId].promises[msg_id] = { resolve, reject };
 		kernels[sessionId].connection.sendUTF(JSON.stringify(codeMsg));
 	});
 
-	response = handleResponse(response);
+	const responseHandled = handleResponse(response);
 
-	if (response.traceback && response.traceback.map) {
-		response.traceback = response.traceback.map((l) =>
+	if (responseHandled?.traceback?.map) {
+		responseHandled.traceback = responseHandled.traceback.map((l) =>
 			l.replace(
 				/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
 				'',
@@ -202,15 +206,15 @@ export const requestToKernel = async function (type, sessionId, payload) {
 		);
 	}
 
-	var endTime = new Date().getTime();
+	const endTime = new Date().getTime();
 
-	response._serverTime = {
+	responseHandled._serverTime = {
 		start: startTime / 1000,
 		end: endTime / 1000,
 		duration: (endTime - startTime) / 1000,
 	};
 
-	return response;
+	return responseHandled;
 };
 
 export const runCode = async function (code = '', sessionId = '') {
@@ -230,9 +234,9 @@ export const runCode = async function (code = '', sessionId = '') {
 			await createKernel(sessionId);
 		}
 
-		var response = await requestToKernel('code', sessionId, code);
+		const response = await requestToKernel('code', sessionId, code);
 
-		if (response.status === 'error') {
+		if (response?.status === 'error') {
 			throw response;
 		}
 		return response;
@@ -256,13 +260,13 @@ export const runCode = async function (code = '', sessionId = '') {
 };
 
 export const createConnection = async function (sessionId) {
-	var ka = kernels[sessionId].kernel_address || 0;
+	const ka = kernels[sessionId].kernel_address || 0;
 
 	if (!kernels[sessionId].connecting) {
 		kernels[sessionId].connecting = new Promise((resolve, reject) => {
-			console.log(
-				`Creating connection for ${sessionId} on ${wsKernelBase(ka)}`,
-			);
+			// console.log(
+			// 	`Creating connection for ${sessionId} on ${wsKernelBase(ka)}`,
+			// );
 
 			kernels[sessionId] = kernels[sessionId] || {};
 
@@ -285,8 +289,8 @@ export const createConnection = async function (sessionId) {
 							throw 'Kernel error';
 						}
 						if (message.type === 'utf8') {
-							var response = JSON.parse(message.utf8Data);
-							var msg_id = response.parent_header.msg_id;
+							const response = JSON.parse(message.utf8Data);
+							const msg_id = response.parent_header.msg_id;
 							if (response.msg_type === 'execute_result') {
 								kernels[sessionId].promises[msg_id].resolve(
 									response.content.data['text/plain'],
@@ -331,18 +335,24 @@ export const createConnection = async function (sessionId) {
 
 const createKernel = async function (sessionId, ka = 0) {
 	try {
-		var tries = 10;
+		let tries = 10;
 		while (tries > 0) {
 			try {
-				const kernelResponse = await request({
-					uri: `${kernelBase(ka)}/api/kernels`,
-					method: 'POST',
-					headers: {},
-					json: true,
-					body: {
-						// name: 'workspace-'+sessionId
-					},
-				});
+				// const kernelResponse = await request({
+				// 	uri: `${kernelBase(ka)}/api/kernels`,
+				// 	method: 'POST',
+				// 	headers: {},
+				// 	json: true,
+				// 	body: {
+				// 		// name: 'workspace-'+sessionId
+				// 		// TODO: kernel-type
+				// 	},
+				// });
+				const kernelResponse = await axios.post(
+					`${kernelBase(ka)}/api/kernels`,
+					{},
+				);
+
 				const uuid = Buffer.from(uuidv1(), 'utf8').toString('hex');
 				if (!kernels[sessionId]) {
 					kernels[sessionId] = {};
@@ -350,7 +360,7 @@ const createKernel = async function (sessionId, ka = 0) {
 				kernels[sessionId] = {
 					...kernels[sessionId],
 					kernel_address: ka,
-					id: kernelResponse.id,
+					id: kernelResponse.data.id,
 					uuid,
 				};
 				break;
@@ -364,7 +374,7 @@ const createKernel = async function (sessionId, ka = 0) {
 				throw 'Error on createKernel';
 			}
 		}
-		console.log('Kernel created', sessionId, ka);
+		// console.log('Kernel created', sessionId, ka);
 		return sessionId;
 	} catch (err) {
 		// console.error(err)
@@ -394,13 +404,15 @@ export const setKernel = function (sessionId, kernelObject) {
 const deleteKernel = async function (sessionId) {
 	try {
 		if (!checkKernel(sessionId)) {
-			var _id = kernels[sessionId].id;
-			var ka = kernels[sessionId].kernel_address || 0;
-			const kernelResponse = await request({
-				uri: `${kernelBase(ka)}/api/kernels/${_id}`,
-				method: 'DELETE',
-				headers: {},
-			});
+			const _id = kernels[sessionId].id;
+			const ka = kernels[sessionId].kernel_address || 0;
+			// const kernelResponse = await request({
+			// 	uri: `${kernelBase(ka)}/api/kernels/${_id}`,
+			// 	method: 'DELETE',
+			// 	headers: {},
+			// });
+			await axios.delete(`${kernelBase(ka)}/api/kernels/${_id}`);
+
 			kernels[sessionId].id = false;
 			console.log('Deleting Session', sessionId, _id);
 		}
@@ -412,21 +424,25 @@ export const deleteEveryKernel = async function () {
 	try {
 		for (let i = 0; i < kernel_bases.length; i++) {
 			try {
-				const response = await request({
-					uri: `${kernelBase(i)}/api/kernels`,
-					method: 'GET',
-					headers: {},
-				});
+				// const response = await request({
+				// 	uri: `${kernelBase(i)}/api/kernels`,
+				// 	method: 'GET',
+				// 	headers: {},
+				// });
+				const { data: kernels } = await axios.get(
+					`${kernelBase(i)}/api/kernels`,
+				);
 
-				const kernels = JSON.parse(response);
+				// const kernels = JSON.parse(response);
 
 				kernels.forEach(async (kernel) => {
 					console.log(`Deleting kernel ${kernel.id}`);
-					await request({
-						uri: `${kernelBase(i)}/api/kernels/${kernel.id}`,
-						method: 'DELETE',
-						headers: {},
-					});
+					// await request({
+					// 	uri: `${kernelBase(i)}/api/kernels/${kernel.id}`,
+					// 	method: 'DELETE',
+					// 	headers: {},
+					// });
+					await axios.delete(`${kernelBase(i)}/api/kernels/${kernel.id}`);
 				});
 			} catch (err) {
 				console.error('Error deleting kernels on', kernelBase(i));
@@ -453,7 +469,7 @@ const handleResponse = function (response) {
 			throw response;
 		}
 
-		var bracketIndex = response.indexOf('{');
+		const bracketIndex = response.indexOf('{');
 
 		if (bracketIndex < 0) {
 			throw { message: 'Invalid response format', response };
@@ -467,7 +483,7 @@ const handleResponse = function (response) {
 		return JSON.parse(response);
 	} catch (error) {
 		console.error(error.toString());
-		return JSON.parse({ response });
+		return JSON.parse(response);
 	}
 };
 

@@ -18,7 +18,7 @@ import {
 } from './kernel';
 import kernelRoutines from './kernel-routines';
 
-@WebSocketGateway(5000)
+@WebSocketGateway()
 export class AppGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer() wss: Server;
